@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Current Affairs Hub – ThunderStudy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#f0f8ff;color:#1a3a52;overflow-x:hidden;}
+
+/* ── BOOT ── */
+#boot{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,#0d1f3c 0%,#1a4a7a 55%,#2a7abf 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .9s ease,transform .9s ease;}
+#boot.hide{opacity:0;transform:scale(1.05);pointer-events:none;}
+.boot-icon{width:88px;height:88px;margin-bottom:1.4rem;animation:bootIconDrop .7s cubic-bezier(.34,1.56,.64,1) forwards;opacity:0;transform:translateY(-22px) scale(.85);}
+@keyframes bootIconDrop{to{opacity:1;transform:translateY(0) scale(1)}}
+.boot-logo{font-family:'Playfair Display',serif;font-size:clamp(2rem,5.5vw,3.4rem);font-weight:900;color:#fff;letter-spacing:-1px;text-align:center;line-height:1.1;text-shadow:0 4px 28px rgba(0,0,0,.28);animation:bootFadeUp .6s .3s ease both;}
+.boot-logo span{color:#7fc9f5;}
+.boot-sub{color:rgba(255,255,255,.65);font-size:.8rem;font-weight:600;letter-spacing:3.5px;text-transform:uppercase;margin-top:.5rem;animation:bootFadeUp .6s .5s ease both;}
+@keyframes bootFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.boot-bar-wrap{width:200px;height:3px;background:rgba(255,255,255,.15);border-radius:99px;margin-top:2.5rem;overflow:hidden;animation:bootFadeUp .4s .7s ease both;}
+.boot-bar{height:100%;width:0;background:linear-gradient(90deg,#7fc9f5,#fff);border-radius:99px;animation:bootload 1.9s .8s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes bootload{0%{width:0}65%{width:82%}100%{width:100%}}
+.boot-tag{color:rgba(255,255,255,.45);font-size:.75rem;margin-top:1.1rem;letter-spacing:1px;animation:bootFadeUp .4s .9s ease both;}
+
+/* ── LIQUID GLASS ── */
+.liquid-glass{background:rgba(0,0,0,.38);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);box-shadow:inset 0 1px 1px rgba(255,255,255,.12);position:relative;overflow:hidden;}
+.liquid-glass::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.4px;background:linear-gradient(180deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,.08) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.08) 80%,rgba(255,255,255,.28) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;}
+
+/* ── HERO ── */
+#hero{position:relative;width:100%;height:100dvh;min-height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+#hero-video{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+#hero-video canvas{width:100%!important;height:100%!important;display:block;}
+/* Overlay gradient to ensure text is readable */
+#hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,30,60,.72) 0%,rgba(20,60,100,.55) 60%,rgba(10,20,50,.38) 100%);z-index:1;pointer-events:none;}
+.navbar-wrap{position:relative;z-index:10;padding:1.5rem 1.5rem 0;flex-shrink:0;}
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:.55rem 1.1rem;border-radius:14px;border:1px solid rgba(255,255,255,.18);}
+.nav-logo{font-size:1.25rem;font-weight:600;color:#fff;letter-spacing:-.5px;}
+.nav-links{display:flex;gap:2rem;}
+.nav-links a{font-size:.82rem;font-weight:500;color:rgba(255,255,255,.85);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:#fff;}
+.nav-btn{background:#fff;color:#000;padding:.45rem 1.3rem;border-radius:8px;font-size:.82rem;font-weight:500;border:none;cursor:pointer;transition:background .18s;}
+.nav-btn:hover{background:#e8e8e8;}
+
+/* Hero body fills remaining height */
+.hero-body{position:relative;z-index:10;flex:1;display:flex;align-items:flex-end;padding:0 1.5rem 3.5rem;}
+/* Grid: left = text+btns, right = timer */
+.hero-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:flex-end;
+  gap:2rem;
+}
+.hero-left{display:flex;flex-direction:column;}
+.hero-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;opacity:0;transition:opacity 1s;}
+
+.hero-heading{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:900;color:#fff;line-height:1.12;letter-spacing:-.04em;margin-bottom:1rem;text-shadow:0 2px 24px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.4);}
+.hero-heading .char{display:inline-block;opacity:0;transform:translateX(-18px);transition:opacity .5s,transform .5s;}
+.hero-heading .char.visible{opacity:1;transform:translateX(0);}
+.hero-sub{font-size:.95rem;font-weight:500;color:rgba(255,255,255,.92);margin-bottom:1.4rem;opacity:0;transition:opacity 1s;max-width:420px;text-shadow:0 1px 8px rgba(0,0,0,.45);}
+.hero-sub.visible{opacity:1;}
+.hero-btns{display:flex;gap:.9rem;flex-wrap:wrap;opacity:0;transition:opacity 1s;}
+.hero-btns.visible{opacity:1;}
+.hbtn-solid{background:#fff;color:#000;padding:.7rem 2rem;border-radius:9px;font-size:.88rem;font-weight:500;border:none;cursor:pointer;text-decoration:none;transition:background .2s;display:inline-block;}
+.hbtn-solid:hover{background:#e8e8e8;}
+.hbtn-glass{background:transparent;border:1px solid rgba(255,255,255,.22);color:#fff;padding:.7rem 2rem;border-radius:9px;font-size:.88rem;font-weight:500;cursor:pointer;text-decoration:none;transition:all .22s;display:inline-block;}
+.hbtn-glass:hover{background:#fff;color:#000;}
+
+/* IST clock — right on desktop, centered below btns on mobile */
+.ist-card{
+  display:inline-flex;flex-direction:column;gap:.2rem;
+  background:rgba(8,20,45,.72);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1.5px solid rgba(127,200,245,.3);
+  box-shadow:0 8px 32px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1);
+  padding:.9rem 1.4rem;border-radius:16px;
+  opacity:0;transition:opacity 1s;
+  min-width:180px;
+}
+.ist-card.visible{opacity:1;}
+.ist-time{font-size:2rem;font-weight:700;color:#fff;letter-spacing:3px;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 20px rgba(127,200,245,.4);}
+.ist-date{font-size:.78rem;color:rgba(255,255,255,.85);font-weight:500;margin-top:.2rem;}
+.ist-label{font-size:.58rem;color:rgba(127,200,245,.8);letter-spacing:1.5px;text-transform:uppercase;margin-top:.15rem;font-weight:600;}
+
+/* Hero tag pill (desktop right) */
+.hero-tag-card{
+  background:rgba(8,20,45,.65);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1.5px solid rgba(127,200,245,.25);
+  box-shadow:0 4px 20px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  padding:.75rem 1.5rem;border-radius:12px;margin-bottom:.8rem;
+}
+.hero-tag-text{font-size:clamp(.82rem,1.4vw,1rem);font-weight:500;color:rgba(255,255,255,.9);letter-spacing:.8px;white-space:nowrap;}
+
+/* Mobile layout overrides — only collapse nav on small screens, grid stays 2-col always */
+@media(max-width:700px){
+  .nav-links{display:none;}
+  .hero-tag-card{display:none;}
+}
+@media(max-width:480px){
+  .hero-grid{grid-template-columns:1fr;gap:.8rem;}
+  .hero-right{align-items:flex-start;width:100%;}
+  .ist-time{font-size:1.4rem;letter-spacing:1.5px;}
+  .ist-card{min-width:unset;padding:.65rem 1rem;}
+}
+
+/* ── STICKY NAV ── */
+#sticky-nav{position:sticky;top:0;z-index:800;background:rgba(255,255,255,.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1.5px solid rgba(58,159,216,.18);padding:0 1.2rem;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;}
+#sticky-nav::-webkit-scrollbar{display:none;}
+.snav-brand{font-size:.85rem;font-weight:700;color:#1a6fa3;margin-right:auto;white-space:nowrap;padding:.85rem .5rem .85rem 0;}
+.snav-link{display:flex;align-items:center;gap:.4rem;padding:.85rem 1.1rem;font-size:.8rem;font-weight:600;color:#4a7fa0;text-decoration:none;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .18s;flex-shrink:0;}
+.snav-link:hover,.snav-link.active{color:#1a6fa3;border-bottom-color:#3a9fd8;}
+
+/* ── WHAT'S NEW ── */
+#whats-new{background:linear-gradient(135deg,#1a6fa3 0%,#3a9fd8 100%);padding:.8rem 1.5rem;display:flex;align-items:center;gap:1rem;overflow:hidden;}
+.wn-badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:.25rem .7rem;border-radius:99px;flex-shrink:0;}
+.wn-ticker{flex:1;overflow:hidden;}
+.wn-items{display:flex;gap:2.5rem;animation:ticker 24s linear infinite;white-space:nowrap;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.wn-item{font-size:.82rem;font-weight:600;color:#fff;display:flex;align-items:center;gap:.5rem;}
+.wn-dot{width:6px;height:6px;background:#b8e2f9;border-radius:50%;flex-shrink:0;}
+
+/* ── MAIN ── */
+.main{max-width:1100px;margin:0 auto;padding:2.5rem 1.2rem 5rem;display:flex;flex-direction:column;gap:3rem;}
+.sec-head{display:flex;align-items:center;gap:.8rem;margin-bottom:1.4rem;}
+.sec-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#3a9fd8,#1a6fa3);display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;box-shadow:0 4px 14px rgba(30,120,180,.22);}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:#1a3a52;}
+.sec-sub{font-size:.72rem;font-weight:600;color:#4a7fa0;letter-spacing:.8px;text-transform:uppercase;margin-top:.05rem;}
+.sub-yr{font-size:.75rem;font-weight:800;color:#3a9fd8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.8rem;margin-top:.3rem;}
+
+/* ── CARD GRIDS ── */
+/* Desktop: 2 per row. Mobile: 1 per row */
+.g-yearly{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
+.g-monthly{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
+.g-quarter{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
+.g-half{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
+
+@media(min-width:900px){
+  .g-yearly{grid-template-columns:repeat(3,1fr);}
+  .g-monthly{grid-template-columns:repeat(4,1fr);}
+  .g-quarter{grid-template-columns:repeat(4,1fr);}
+  .g-half{grid-template-columns:repeat(4,1fr);}
+}
+
+/* ── FOLDER CARD ── */
+.card{
+  position:relative;
+  overflow:visible;
+  cursor:pointer;
+  transition:transform .22s cubic-bezier(.4,0,.2,1), box-shadow .22s;
+  display:flex;flex-direction:column;
+}
+.card:hover:not(.locked){transform:translateY(-5px);}
+
+/* Folder tab — left-aligned with diagonal cut */
+.card-tab{
+  height:26px;
+  width:52%;
+  margin-left:0;
+  border-radius:10px 10px 0 0;
+  background:linear-gradient(135deg,rgba(200,160,245,.7) 0%,rgba(160,200,250,.7) 100%);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  position:relative;
+  z-index:1;
+  flex-shrink:0;
+  display:flex;align-items:center;padding:0 12px;
+  clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 100%, 0 100%);
+}
+.card-tab-label{
+  font-size:.55rem;font-weight:800;
+  letter-spacing:1.8px;text-transform:uppercase;
+  color:rgba(50,20,90,.7);
+  white-space:nowrap;
+}
+.card.locked .card-tab{
+  background:linear-gradient(135deg,rgba(185,170,215,.6) 0%,rgba(170,190,220,.6) 100%);
+}
+
+/* Glass body */
+.card-body{
+  background:rgba(255,255,255,.28);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-radius:0 14px 16px 16px;
+  border:1.5px solid rgba(255,255,255,.45);
+  border-top:1.5px solid rgba(255,255,255,.6);
+  box-shadow:0 8px 32px rgba(100,120,200,.1),inset 0 1px 0 rgba(255,255,255,.7);
+  padding:1.1rem 1rem 1rem;
+  display:flex;flex-direction:column;gap:.55rem;
+  flex:1;
+  position:relative;
+  z-index:2;
+  min-height:150px;
+}
+.card.locked .card-body{
+  background:rgba(220,215,235,.2);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  opacity:.8;
+}
+
+/* NEW badge */
+.card-new-badge{
+  position:absolute;top:6px;right:10px;
+  background:linear-gradient(135deg,rgba(200,130,250,.85),rgba(90,170,250,.85));
+  backdrop-filter:blur(6px);
+  color:#fff;font-size:.52rem;font-weight:800;letter-spacing:1.4px;
+  padding:.22rem .6rem;border-radius:99px;
+  box-shadow:0 2px 8px rgba(160,100,220,.3);
+  z-index:10;
+}
+
+.card-type-label{display:none;}
+.card-folder-icon{display:none;}
+
+.card-main-name{
+  font-family:'Playfair Display',serif;
+  font-weight:700;color:#1e3060;
+  line-height:1.2;
+}
+.card-main-name .name-line1{display:block;font-size:1.05rem;}
+.card-main-name .name-line2{display:block;font-size:.9rem;color:#4060a0;font-weight:600;margin-top:.05rem;}
+
+/* Lock info */
+.card-lock-row{display:flex;align-items:center;gap:.4rem;margin-top:auto;padding-top:.4rem;}
+.card-lock-icon{font-size:1rem;opacity:.55;}
+.card-lock-text{font-size:.65rem;font-weight:600;color:#7080b0;}
+.countdown-badge{font-size:.6rem;font-weight:700;color:#5060a0;background:rgba(100,110,200,.1);border-radius:6px;padding:.18rem .45rem;display:inline-flex;align-items:center;gap:.25rem;margin-top:.25rem;}
+
+/* ── GLASS BUTTONS ── */
+.card-btns{
+  display:flex;flex-direction:column;gap:.4rem;
+  margin-top:auto;padding-top:.4rem;
+}
+.gbtn{
+  width:100%;padding:.52rem .5rem;
+  border-radius:99px;border:none;cursor:pointer;
+  font-family:'Inter',sans-serif;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  position:relative;overflow:hidden;
+  transition:transform .16s,box-shadow .16s;
+  text-decoration:none;
+}
+.gbtn::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.05) 100%);
+  pointer-events:none;
+}
+.gbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.13);}
+.gbtn:active{transform:scale(.97);}
+.gbtn-view{
+  background:rgba(195,160,245,.45);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1.5px solid rgba(200,165,248,.5);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 2px 10px rgba(160,120,230,.12);
+  color:#5030a0;
+}
+.gbtn-dl{
+  background:rgba(130,195,248,.42);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1.5px solid rgba(130,200,250,.5);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 2px 10px rgba(80,160,230,.12);
+  color:#1850a0;
+}
+.gbtn-text{font-size:.76rem;letter-spacing:.2px;}
+.gbtn-icon{font-size:.95rem;flex-shrink:0;}
+
+@media(max-width:600px){
+  .card-btns{flex-direction:row;gap:.6rem;margin-top:.6rem;}
+  .gbtn{flex:1;}
+  .mobile-file-dot{display:none;}
+}
+@media(min-width:601px){.mobile-file-dot{display:none;}}
+
+.divider{height:1.5px;background:linear-gradient(90deg,transparent,#d0eaf8,transparent);border-radius:99px;}
+
+/* Toast */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1a3a52;color:#fff;padding:.7rem 1.5rem;border-radius:99px;font-size:.83rem;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.22);z-index:8000;opacity:0;pointer-events:none;transition:opacity .3s;text-align:center;max-width:88vw;}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot">
+  <!-- Animated SVG icon: newspaper + lightning bolt -->
+  <svg class="boot-icon" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Glowing circle bg -->
+    <circle cx="44" cy="44" r="40" fill="rgba(127,201,245,0.12)" stroke="rgba(127,201,245,0.3)" stroke-width="1.5"/>
+    <!-- Newspaper body -->
+    <rect x="18" y="22" width="38" height="46" rx="4" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+    <!-- Newspaper lines (animated) -->
+    <line x1="25" y1="32" x2="48" y2="32" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" from="0" to="1" begin="0.4s" dur="0.3s" fill="freeze"/>
+    </line>
+    <line x1="25" y1="38" x2="48" y2="38" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" from="0" to="1" begin="0.55s" dur="0.3s" fill="freeze"/>
+    </line>
+    <line x1="25" y1="44" x2="42" y2="44" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" from="0" to="1" begin="0.7s" dur="0.3s" fill="freeze"/>
+    </line>
+    <line x1="25" y1="50" x2="45" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" from="0" to="1" begin="0.85s" dur="0.3s" fill="freeze"/>
+    </line>
+    <!-- Lightning bolt badge (animated drop) -->
+    <g transform="translate(48,46)">
+      <circle cx="14" cy="14" r="13" fill="#1a4a7a" stroke="rgba(127,201,245,0.6)" stroke-width="1.5"/>
+      <polygon points="15,4 9,15 13.5,15 11,24 19,13 14,13" fill="#f5c842" stroke="#e8a820" stroke-width=".5" stroke-linejoin="round"/>
+      <animateTransform attributeName="transform" type="translate" from="48,36" to="48,46" begin="0.2s" dur="0.5s" calcMode="spline" keySplines="0.34,1.56,0.64,1" fill="freeze"/>
+      <animate attributeName="opacity" from="0" to="1" begin="0.2s" dur="0.3s" fill="freeze"/>
+    </g>
+  </svg>
+  <div class="boot-logo">Current<span>Affairs</span><br>Hub</div>
+  <div class="boot-sub">ThunderStudy</div>
+  <div class="boot-bar-wrap"><div class="boot-bar"></div></div>
+  <div class="boot-tag">Stay Ahead. Stay Informed.</div>
+</div>
+
+<div id="app" style="display:none">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div id="hero-video"><canvas id="candle-canvas"></canvas></div>
+    <div class="navbar-wrap">
+      <nav class="navbar liquid-glass">
+        <div class="nav-logo">ThunderStudy</div>
+        <div class="nav-links">
+          <a href="#sec-yearly" onclick="smooth(event,'sec-yearly')">Yearly</a>
+          <a href="#sec-monthly" onclick="smooth(event,'sec-monthly')">Monthly</a>
+          <a href="#sec-quarterly" onclick="smooth(event,'sec-quarterly')">Quarterly</a>
+          <a href="#sec-halfyear" onclick="smooth(event,'sec-halfyear')">Half-Yearly</a>
+        </div>
+        <a class="nav-btn" href="https://commercesehoga.github.io/gat" target="_blank" style="text-decoration:none;">Mock Test</a>
+      </nav>
+    </div>
+    <div class="hero-body">
+      <div class="hero-grid">
+        <!-- LEFT: heading + sub + buttons -->
+        <div class="hero-left">
+          <div class="hero-heading" id="hero-heading">Stay Ahead with<br>Current Affairs.</div>
+          <div class="hero-sub" id="hero-sub">Yearly, monthly, quarterly and half-yearly summaries — all in one place, always up to date.</div>
+          <div class="hero-btns" id="hero-btns">
+            <a class="hbtn-solid" href="https://commercesehoga.github.io/gat" target="_blank">Mock Test</a>
+            <a class="hbtn-glass" href="#sec-monthly" onclick="smooth(event,'sec-monthly')">Monthly PDFs</a>
+          </div>
+        </div>
+        <!-- RIGHT: tag pill + IST clock -->
+        <div class="hero-right" id="hero-tag">
+          <div class="hero-tag-card liquid-glass">
+            <div class="hero-tag-text">Yearly · Monthly · Quarterly · Half-Yearly</div>
+          </div>
+          <div class="ist-card liquid-glass" id="ist-card">
+            <div class="ist-time" id="ist-time">--:--:--</div>
+            <div class="ist-date" id="ist-date">Loading...</div>
+            <div class="ist-label">India Standard Time (IST)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STICKY NAV -->
+  <nav id="sticky-nav">
+    <span class="snav-brand">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-right:5px;vertical-align:-2px"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/></svg>
+      Current Affairs
+    </span>
+    <a class="snav-link" href="#sec-yearly" onclick="smooth(event,'sec-yearly')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Yearly
+    </a>
+    <a class="snav-link" href="#sec-monthly" onclick="smooth(event,'sec-monthly')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14" stroke-width="3"/><line x1="12" y1="14" x2="12" y2="14" stroke-width="3"/><line x1="8" y1="18" x2="8" y2="18" stroke-width="3"/></svg>
+      Monthly
+    </a>
+    <a class="snav-link" href="#sec-quarterly" onclick="smooth(event,'sec-quarterly')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Quarterly
+    </a>
+    <a class="snav-link" href="#sec-halfyear" onclick="smooth(event,'sec-halfyear')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Half-Yearly
+    </a>
+  </nav>
+
+  <!-- WHAT'S NEW -->
+  <div id="whats-new">
+    <span class="wn-badge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;vertical-align:-1px"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+      What's New
+    </span>
+    <div class="wn-ticker"><div class="wn-items" id="wn-items"></div></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div id="sec-yearly">
+      <div class="sec-head">
+        <div class="sec-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div><div class="sec-title">Yearly Current Affairs</div><div class="sec-sub">Opens on 5 Jan of following year</div></div>
+      </div>
+      <div class="g-yearly" id="yearly-cards"></div>
+    </div>
+    <div class="divider"></div>
+
+    <div id="sec-monthly">
+      <div class="sec-head">
+        <div class="sec-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="#fff"/><circle cx="12" cy="15" r="1" fill="#fff"/><circle cx="8" cy="19" r="1" fill="#fff"/></svg>
+        </div>
+        <div><div class="sec-title">Monthly Current Affairs</div><div class="sec-sub">2025 all open · 2026 opens 2nd of next month</div></div>
+      </div>
+      <div id="monthly-section"></div>
+    </div>
+    <div class="divider"></div>
+
+    <div id="sec-quarterly">
+      <div class="sec-head">
+        <div class="sec-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div><div class="sec-title">Last 3 Months</div><div class="sec-sub">Opens 5th of month after quarter ends</div></div>
+      </div>
+      <div id="quarterly-section"></div>
+    </div>
+    <div class="divider"></div>
+
+    <div id="sec-halfyear">
+      <div class="sec-head">
+        <div class="sec-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div><div class="sec-title">Last 6 Months</div><div class="sec-sub">Jan–Jun opens Jul 3 · Jul–Dec opens Jan 3</div></div>
+      </div>
+      <div id="halfyear-section"></div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="text-align:center;padding:2.2rem 1rem 2.8rem;background:transparent;">
+    <p style="font-size:.8rem;font-weight:500;color:#7a90b0;display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.3px;">
+      Made with
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="#e0507a" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;animation:heartbeat 1.4s ease infinite;">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+      by <a href="https://wondermayank.github.io" target="_blank" style="color:#3a9fd8;font-weight:700;text-decoration:none;transition:color .18s;" onmouseover="this.style.color='#1a6fa3'" onmouseout="this.style.color='#3a9fd8'">wondermayank</a>
+    </p>
+  </footer>
+</div>
+<style>
+@keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.25)}28%{transform:scale(1)}42%{transform:scale(1.15)}70%{transform:scale(1)}}
+</style>
+<div id="toast"></div>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function getIST(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));}
+function toastMsg(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3400);}
+function smooth(e,id){e.preventDefault();document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+function smooth2(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+function daysUntil(y,m,d){const i=getIST();const t=new Date(y,m-1,d);const n=new Date(i.getFullYear(),i.getMonth(),i.getDate());return Math.ceil((t-n)/86400000);}
+function cStr(days){if(days<=0)return null;if(days===1)return'⏳ Opens tomorrow';if(days<=7)return`⏳ Opens in ${days} days`;return`⏳ ~${Math.floor(days/7)}w ${days%7}d`;}
+function isNew(oy,om,od){const i=getIST();const o=new Date(oy,om-1,od);const n=new Date(i.getFullYear(),i.getMonth(),i.getDate());const d=Math.floor((n-o)/86400000);return d>=0&&d<=7;}
+const isMobile=()=>window.innerWidth<=600;
+
+/* ── BUILD FOLDER CARD ── */
+
+// Eye SVG — realistic blink: eyelids close shut then open, iris stays
+const SVG_EYE=`<svg width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- outer eye shape -->
+  <path d="M2 18 C8 8, 28 8, 34 18 C28 28, 8 28, 2 18 Z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+  <!-- iris -->
+  <circle cx="18" cy="18" r="5.5" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity=".15"/>
+  <!-- pupil -->
+  <circle cx="18" cy="18" r="2.5" fill="currentColor"/>
+  <!-- highlight -->
+  <circle cx="20.5" cy="15.5" r="1.2" fill="white" opacity=".7"/>
+  <!-- upper eyelid blink — clips from top -->
+  <path d="M2 18 C8 8, 28 8, 34 18" stroke="none" fill="currentColor" fill-opacity="0">
+    <animate attributeName="d"
+      values="M2 18 C8 18, 28 18, 34 18;M2 18 C8 8, 28 8, 34 18"
+      keyTimes="0;1"
+      dur="0.18s"
+      begin="0s;blink.end+2.8s"
+      id="blinkOpen"
+      fill="freeze"/>
+    <animate attributeName="d"
+      values="M2 18 C8 8, 28 8, 34 18;M2 18 C8 18, 28 18, 34 18"
+      keyTimes="0;1"
+      dur="0.12s"
+      begin="blinkOpen.end+0.06s"
+      id="blink"
+      fill="freeze"/>
+    <animate attributeName="fill-opacity" values="0.92;0.92" dur="0.12s" begin="blinkOpen.end+0.06s" fill="freeze"/>
+  </path>
+</svg>`;
+
+// Download SVG — arrow slides DOWN then jumps back up, repeating
+const SVG_DL=`<svg width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- shaft + head group that translates down then snaps up -->
+  <g>
+    <line x1="18" y1="4" x2="18" y2="21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <polyline points="10,16 18,24 26,16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <animateTransform attributeName="transform" type="translate"
+      values="0,0; 0,4; 0,4; 0,0"
+      keyTimes="0; 0.35; 0.65; 1"
+      dur="1.8s" repeatCount="indefinite"
+      calcMode="spline"
+      keySplines="0.4,0,0.2,1; 0,0,1,1; 0.4,0,0.2,1"/>
+  </g>
+  <!-- baseline bar — stays fixed -->
+  <line x1="9" y1="30" x2="27" y2="30" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+</svg>`;
+
+const SVG_LOCK=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+const SVG_TIMER=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+
+function makeCard({typeLabel, mainName, locked, url, openStr, openY, openM, openD, isNewCard}){
+  const card=document.createElement('div');
+  card.className='card'+(locked?' locked':'');
+
+  // Tab with label
+  const tab=document.createElement('div');
+  tab.className='card-tab';
+  const tabLbl=document.createElement('span');
+  tabLbl.className='card-tab-label';
+  tabLbl.textContent=typeLabel;
+  tab.appendChild(tabLbl);
+  card.appendChild(tab);
+
+  // NEW badge
+  if(isNewCard){
+    const nb=document.createElement('div');
+    nb.className='card-new-badge';
+    nb.textContent='NEW';
+    card.appendChild(nb);
+  }
+
+  // Body
+  const body=document.createElement('div');
+  body.className='card-body';
+
+  // Type label (hidden)
+  const tl=document.createElement('div');
+  tl.className='card-type-label';
+  tl.textContent=typeLabel;
+  body.appendChild(tl);
+
+  // Main name
+  const mn=document.createElement('div');
+  mn.className='card-main-name';
+  const parts=mainName.split(' ');
+  const part1=parts.slice(0,-1).join(' ');
+  const part2=parts[parts.length-1];
+  mn.innerHTML=`<span class="name-line1">${part1||mainName}</span>${part2&&part1?`<span class="name-line2">${part2}</span>`:''}`;
+  body.appendChild(mn);
+
+  if(locked){
+    const lr=document.createElement('div');
+    lr.className='card-lock-row';
+    lr.innerHTML=`<span class="card-lock-icon">${SVG_LOCK}</span><span class="card-lock-text">${openStr}</span>`;
+    body.appendChild(lr);
+    if(openY&&openM&&openD){
+      const d=daysUntil(openY,openM,openD);
+      const cs=cStr(d);
+      if(cs){const cb=document.createElement('div');cb.className='countdown-badge';cb.innerHTML=SVG_TIMER+' '+cs.replace('⏳ ','');body.appendChild(cb);}
+    }
+    card.addEventListener('click',()=>toastMsg('🔒 '+openStr));
+  } else {
+    const btns=document.createElement('div');
+    btns.className='card-btns';
+
+    // View button — SVG eye
+    const vBtn=document.createElement('a');
+    vBtn.className='gbtn gbtn-view';
+    vBtn.href=url; vBtn.target='_blank';
+    vBtn.innerHTML=`<span class="gbtn-icon">${SVG_EYE}</span><span class="gbtn-text">View PDF</span>`;
+    vBtn.addEventListener('click',e=>e.stopPropagation());
+
+    // Download button — SVG arrow
+    const dBtn=document.createElement('a');
+    dBtn.className='gbtn gbtn-dl';
+    dBtn.href=url; dBtn.download='';
+    dBtn.innerHTML=`<span class="gbtn-icon">${SVG_DL}</span><span class="gbtn-text">Download</span>`;
+    dBtn.addEventListener('click',e=>e.stopPropagation());
+
+    btns.appendChild(vBtn);
+    btns.appendChild(dBtn);
+    body.appendChild(btns);
+    card.style.cursor='default';
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+/* ── BOOT ── */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('boot').classList.add('hide');
+    document.getElementById('app').style.display='block';
+    setTimeout(()=>{
+      if(window.__initCandle) window.__initCandle();
+      animateHero();
+    },120);
+  },2300);
+});
+
+function animateHero(){
+  const h=document.getElementById('hero-heading');
+  const rawLines=h.innerHTML.split('<br>');
+  h.innerHTML='';
+  rawLines.forEach((line,li)=>{
+    const ls=document.createElement('span');ls.style.display='block';
+    line.split('').forEach((ch,ci)=>{
+      const sp=document.createElement('span');sp.className='char';
+      sp.textContent=ch===' '?'\u00A0':ch;
+      setTimeout(()=>sp.classList.add('visible'),200+li*15*30+ci*30);
+      ls.appendChild(sp);
+    });
+    h.appendChild(ls);
+  });
+  setTimeout(()=>document.getElementById('hero-sub').classList.add('visible'),850);
+  setTimeout(()=>document.getElementById('hero-btns').classList.add('visible'),1250);
+  // Fade in right column (tag pill + clock) and ist-card
+  setTimeout(()=>{
+    const rt=document.getElementById('hero-tag');
+    if(rt) rt.style.opacity='1';
+    const ic=document.getElementById('ist-card');
+    if(ic) ic.classList.add('visible');
+  },1450);
+}
+
+function updateIST(){
+  const i=getIST();
+  const h=String(i.getHours()).padStart(2,'0'),m=String(i.getMinutes()).padStart(2,'0'),s=String(i.getSeconds()).padStart(2,'0');
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('ist-time').textContent=`${h}:${m}:${s}`;
+  document.getElementById('ist-date').textContent=`${days[i.getDay()]}, ${i.getDate()} ${MONTHS[i.getMonth()]} ${i.getFullYear()}`;
+}
+updateIST();setInterval(updateIST,1000);
+
+const secs=['sec-yearly','sec-monthly','sec-quarterly','sec-halfyear'];
+const slinks=document.querySelectorAll('.snav-link');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  secs.forEach(id=>{const el=document.getElementById(id);if(el&&window.scrollY>=el.offsetTop-120)cur=id;});
+  slinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+});
+
+function buildWN(items){
+  const el=document.getElementById('wn-items');
+  [...items,...items].forEach(txt=>{
+    const d=document.createElement('div');d.className='wn-item';
+    d.innerHTML=`<span class="wn-dot"></span>${txt}`;
+    el.appendChild(d);
+  });
+}
+
+/* ── S1 YEARLY ── */
+function buildYearly(){
+  const i=getIST();const cy=i.getFullYear(),cm=i.getMonth()+1,cd=i.getDate();
+  const cont=document.getElementById('yearly-cards');
+  [2023,2024,2025,2026,2027].forEach(yr=>{
+    const oy=yr+1,om=1,od=5;
+    const open=cy>oy||(cy===oy&&cm>om)||(cy===oy&&cm===om&&cd>=od);
+    const nc=open&&isNew(oy,om,od);
+    cont.appendChild(makeCard({
+      typeLabel:'YEARLY',
+      mainName:`Year ${yr}`,
+      locked:!open,
+      url:`https://thunderstudy.github.io/yearly/${yr}.pdf`,
+      openStr:`Opens 5 Jan ${oy}`,
+      openY:oy,openM:om,openD:od,
+      isNewCard:nc
+    }));
+  });
+}
+
+/* ── S2 MONTHLY ── */
+function buildMonthly(){
+  const i=getIST();const cy=i.getFullYear(),cm=i.getMonth()+1,cd=i.getDate();
+  const cont=document.getElementById('monthly-section');const nw=[];
+  [2025,2026].forEach(yr=>{
+    const grp=document.createElement('div');
+    grp.innerHTML=`<div class="sub-yr">${yr}</div>`;
+    const grid=document.createElement('div');grid.className='g-monthly';
+    for(let m=1;m<=12;m++){
+      let open=false,oy,om,od=2;
+      if(yr<cy){open=true;oy=yr;om=m;}
+      else if(yr===2025){open=true;oy=m===12?yr+1:yr;om=m===12?1:m+1;}
+      else{oy=m===12?yr+1:yr;om=m===12?1:m+1;open=cy>oy||(cy===oy&&cm>om)||(cy===oy&&cm===om&&cd>=od);}
+      const code=String(yr).slice(2)+MSHORT[m-1].toLowerCase();
+      const url=`https://thunderstudy.github.io/monthly/${code}.pdf`;
+      const nc=open&&isNew(oy,om,od);
+      if(nc)nw.push(`${MONTHS[m-1]} ${yr} Monthly — Just Unlocked`);
+      grid.appendChild(makeCard({
+        typeLabel:'MONTHLY',
+        mainName:`${MONTHS[m-1]} ${yr}`,
+        locked:!open,
+        url,
+        openStr:`Opens 2 ${MONTHS[om-1]} ${oy}`,
+        openY:oy,openM:om,openD:od,
+        isNewCard:nc
+      }));
+    }
+    grp.appendChild(grid);cont.appendChild(grp);
+  });
+  return nw;
+}
+
+/* ── S3 QUARTERLY ── */
+const QUARTERS=[
+  {label:'Jan – Mar',code:'jtom',oy_off:0,om:4,od:5,lbl:'April'},
+  {label:'Apr – Jun',code:'atoj',oy_off:0,om:7,od:5,lbl:'July'},
+  {label:'Jul – Sep',code:'jtos',oy_off:0,om:10,od:5,lbl:'October'},
+  {label:'Oct – Dec',code:'otod',oy_off:1,om:1,od:5,lbl:'January'},
+];
+function buildQuarterly(){
+  const i=getIST();const cy=i.getFullYear(),cm=i.getMonth()+1,cd=i.getDate();
+  const cont=document.getElementById('quarterly-section');const nw=[];
+  [2025,2026].forEach(yr=>{
+    const grp=document.createElement('div');
+    grp.innerHTML=`<div class="sub-yr">${yr}</div>`;
+    const grid=document.createElement('div');grid.className='g-quarter';
+    QUARTERS.forEach(q=>{
+      const oy=yr+q.oy_off,om=q.om,od=q.od;
+      const open=cy>oy||(cy===oy&&cm>om)||(cy===oy&&cm===om&&cd>=od);
+      const nc=open&&isNew(oy,om,od);
+      if(nc)nw.push(`${q.label} ${yr} Quarterly — Just Unlocked`);
+      grid.appendChild(makeCard({
+        typeLabel:'QUARTERLY',
+        mainName:`${q.label} ${yr}`,
+        locked:!open,
+        url:`https://thunderstudy.github.io/3month/${yr}${q.code}.pdf`,
+        openStr:`Opens ${od} ${q.lbl} ${oy}`,
+        openY:oy,openM:om,openD:od,
+        isNewCard:nc
+      }));
+    });
+    grp.appendChild(grid);cont.appendChild(grp);
+  });
+  return nw;
+}
+
+/* ── S4 HALF-YEARLY ── */
+const HALVES=[
+  {label:'Jan – Jun',code:'jtoj',oy_off:0,om:7,od:3,lbl:yr=>`3 July ${yr}`},
+  {label:'Jul – Dec',code:'jtod',oy_off:1,om:1,od:3,lbl:yr=>`3 January ${yr+1}`},
+];
+function buildHalfYearly(){
+  const i=getIST();const cy=i.getFullYear(),cm=i.getMonth()+1,cd=i.getDate();
+  const cont=document.getElementById('halfyear-section');const nw=[];
+  [2025,2026].forEach(yr=>{
+    const grp=document.createElement('div');
+    grp.innerHTML=`<div class="sub-yr">${yr}</div>`;
+    const grid=document.createElement('div');grid.className='g-half';
+    HALVES.forEach(h=>{
+      const oy=yr+h.oy_off,om=h.om,od=h.od;
+      const open=cy>oy||(cy===oy&&cm>om)||(cy===oy&&cm===om&&cd>=od);
+      const nc=open&&isNew(oy,om,od);
+      if(nc)nw.push(`${h.label} ${yr} Half-Yearly — Just Unlocked`);
+      grid.appendChild(makeCard({
+        typeLabel:'HALF-YEARLY',
+        mainName:`${h.label} ${yr}`,
+        locked:!open,
+        url:`https://thunderstudy.github.io/6month/${yr}${h.code}.pdf`,
+        openStr:`Opens ${h.lbl(yr)}`,
+        openY:oy,openM:om,openD:od,
+        isNewCard:nc
+      }));
+    });
+    grp.appendChild(grid);cont.appendChild(grp);
+  });
+  return nw;
+}
+
+buildYearly();
+const mN=buildMonthly(),qN=buildQuarterly(),hN=buildHalfYearly();
+const allN=[...mN,...qN,...hN];
+if(!allN.length)allN.push('All current affairs up to date','Next unlock coming soon','Content releases on schedule');
+buildWN(allN);
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+    window.__initCandle = function() {
+        const COUNT = 20000;
+        const canvas = document.getElementById('candle-canvas');
+        const heroEl = document.getElementById('hero');
+        const W = heroEl.offsetWidth, H = heroEl.offsetHeight;
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.01);
+
+        const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 2000);
+        camera.position.set(0, 0, 100);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', alpha: true });
+        renderer.setSize(W, H);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const controls = new OrbitControls(camera, canvas);
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 2.0;
+
+        const composer = new EffectComposer(renderer);
+        composer.addPass(new RenderPass(scene, camera));
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(W, H), 1.8, 0.4, 0);
+        composer.addPass(bloomPass);
+
+        const dummy = new THREE.Object3D();
+        const color = new THREE.Color();
+        const target = new THREE.Vector3();
+
+        const geometry = new THREE.TetrahedronGeometry(0.25);
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const instancedMesh = new THREE.InstancedMesh(geometry, material, COUNT);
+        instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        scene.add(instancedMesh);
+
+        const positions = [];
+        for (let i = 0; i < COUNT; i++) {
+            positions.push(new THREE.Vector3((Math.random()-.5)*100,(Math.random()-.5)*100,(Math.random()-.5)*100));
+            instancedMesh.setColorAt(i, color.setHex(0x00ff88));
+        }
+
+        const PARAMS = { radius: 27.1, twist: 3.6, noise: 1.5, speed: 2.05 };
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            controls.update();
+            for (let i = 0; i < COUNT; i++) {
+                const f = i / COUNT;
+                const theta = i * 2.399963229728653;
+                const y = 1 - f * 2;
+                const r = Math.sqrt(1 - y * y);
+                const x = Math.cos(theta) * r, z = Math.sin(theta) * r;
+                const ta = PARAMS.twist * y + time * PARAMS.speed;
+                const tx = x * Math.cos(ta) - z * Math.sin(ta);
+                const tz = x * Math.sin(ta) + z * Math.cos(ta);
+                const wave = Math.sin((tx + tz) * 3.0 + time * PARAMS.speed) * PARAMS.noise;
+                target.set(tx * (PARAMS.radius + wave * 10), y * (PARAMS.radius + wave * 10), tz * (PARAMS.radius + wave * 10));
+                color.setHSL((f + time * 0.05) % 1.0, 0.8, 0.5 + 0.2 * Math.sin(time + f * 6.2831));
+                positions[i].lerp(target, 0.1);
+                dummy.position.copy(positions[i]);
+                dummy.updateMatrix();
+                instancedMesh.setMatrixAt(i, dummy.matrix);
+                instancedMesh.setColorAt(i, color);
+            }
+            instancedMesh.instanceMatrix.needsUpdate = true;
+            instancedMesh.instanceColor.needsUpdate = true;
+            composer.render();
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            const w = heroEl.offsetWidth, h = heroEl.offsetHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            composer.setSize(w, h);
+        });
+    };
+</script>
+</body>
+</html>
